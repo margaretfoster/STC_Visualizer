@@ -4,6 +4,7 @@ from dash import Dash
 from dash import html
 from dash import dcc
 from dash.dependencies import Input, Output
+import dash_bootstrap_components as dbc
 import plotly.express as px
 import plotly.graph_objects as go
 import sys
@@ -14,7 +15,7 @@ group_years = pd.read_csv("../data/group_years_regions.csv")
 df = group_years
 
 # Initialize the Dash app
-app = dash.Dash(__name__)
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SPACESHIP])
 
 app.title = "Subject to Change Viewer"
 
@@ -50,25 +51,31 @@ def description_card():
 
 
 # App layout
-app.layout = html.Div([
-    description_card(), 
-    html.H6("Select Region"),
-    dcc.Dropdown(
-        id='dropdown-category1',
-        options=[{'label': i, 'value': i} for i in df['region'].unique()],
-        value=df['region'].unique()[0],
-        placeholder="Select region"
-    ),
-    html.Br(),
-    html.H6("Select Group"),
-    dcc.Dropdown(
-        id='dropdown-category2',
-        placeholder="Select group"
-    ),
-    html.Br(),
-    html.H6("Group Framing Trajectory (1991-2020)"),
-    dcc.Graph(id='line-plot')
-])
+app.layout = dbc.Container([
+    dbc.Row([
+        dbc.Col([
+            description_card(),
+            html.H6("Select Region"),
+            dcc.Dropdown(
+                id='dropdown-category1',
+                options=[{'label': i, 'value': i} for i in df['region'].unique()],
+                value=df['region'].unique()[0],
+                placeholder="Select region"
+            ),
+            html.Br(),
+            html.H6("Select Group"),
+            dcc.Dropdown(
+                id='dropdown-category2',
+                placeholder="Select group"
+            ),
+            html.Br(),
+        ], width=4),  # Width of 4 for the first column
+        dbc.Col([
+            html.H6("Group Framing Trajectory (1991-2020)"),
+            dcc.Graph(id='line-plot')
+        ], width=8)  # Width of 8 for the second column
+    ])
+], fluid=True)
 
 
 # Define callback to update dropdown options based on category1 selection
