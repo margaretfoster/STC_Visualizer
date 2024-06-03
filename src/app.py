@@ -4,7 +4,6 @@ from dash import Dash
 from dash import html
 from dash import dcc
 from dash.dependencies import Input, Output
-import dash_bootstrap_components as dbc
 import plotly.express as px
 import plotly.graph_objects as go
 import sys
@@ -15,7 +14,7 @@ group_years = pd.read_csv("../data/group_years_regions.csv")
 df = group_years
 
 # Initialize the Dash app
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SPACESHIP])
+app = dash.Dash(__name__)
 
 app.title = "Subject to Change Viewer"
 
