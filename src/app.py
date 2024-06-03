@@ -34,7 +34,7 @@ def description_card():
                 id="intro",
                 children= [
                     html.P("This dashboard allows you to explore how Subject to Change (Foster 2024) characterizes change in militant groups by focusing on the trajectories of specific groups."), 
-                    html.P("An aggregate summary can be viewed on the accompanying project page, at: PLACEHOLDER FOR FINAL URL"),
+                    html.P("An aggregate summary can be viewed on the accompanying project page, at: https://github.com/margaretfoster/SubjectToChange/"),
                     html.P(" "),
                     html.P("To use this dashboard, start by chosing the region, and then a group of interest. The lines on the plot provide years of operation between 1991-2020."),
                     html.P("Hovering over the line will provide a box that summarizes the framing for that group-year."),
