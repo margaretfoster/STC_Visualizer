@@ -11,7 +11,7 @@ import sys
 print(sys.executable)
 
 ## Import and manipulate data
-group_years = pd.read_csv("./data/group_years_regions.csv")
+group_years = pd.read_csv("../data/group_years_regions.csv")
 
 
 # Sample data
@@ -19,6 +19,8 @@ df=group_years
 
 # Initialize the Dash app
 app = dash.Dash(__name__)
+
+app.title = "Subject to Change Viewer"
 
 # App layout
 app.layout = html.Div([
@@ -74,5 +76,5 @@ def update_line_plot(selected_category1, selected_category2):
 
 # Run the app
 if __name__ == '__main__':
-app.run_server(host='0.0.0.0',debug=True)
+    app.run_server(host='0.0.0.0',debug=True)
 
