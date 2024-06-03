@@ -22,25 +22,65 @@ app = dash.Dash(__name__)
 
 app.title = "Subject to Change Viewer"
 
+## Experimental
+
+def description_card():
+    """
+
+    :return: A Div containing dashboard title & descriptions.
+    """
+    return html.Div(
+        id="description-card",
+        children=[
+            html.H5("Subject to Change Viewer"),
+            html.H3("Welcome to the Subject to Change Viewer"),
+            html.Div(
+                id="intro",
+                children= [
+                    html.P("This dashboard allows you to explore how Subject to Change (Foster 2024) characterizes change in militant groups by focusing on the trajectories of specific groups."), 
+                    html.P("An aggregate summary can be viewed on the accompanying project page, at: PLACEHOLDER FOR FINAL URL"),
+                    html.P(" "),
+                    html.P("To use this dashboard, start by chosing the region, and then a group of interest. The lines on the plot provide years of operation between 1991-2020."),
+                    html.P("Hovering over the line will provide a box that summarizes the framing for that group-year."),
+                    html.P(" "),
+                    html.P("Foster (2024) defines changes as group years where the line crosses the 0 (green) line, \
+                            though users may choose a different threshold by creating a custom feature from the 'PropT1' and 'PropT2' columns.")
+                ]
+            ),
+            html.Br(),  # Add a line break for space
+            html.Br(),  # Add a line break for space
+        ],
+    )
+
+
 # App layout
 app.layout = html.Div([
+    description_card(), 
+    html.H6("Select Region"),
     dcc.Dropdown(
         id='dropdown-category1',
         options=[{'label': i, 'value': i} for i in df['region'].unique()],
-        value=df['region'].unique()[0]
+        value=df['region'].unique()[0],
+        placeholder="Select region"
     ),
     html.Br(),
-    dcc.Dropdown(id='dropdown-category2'),
+    html.H6("Select Group"),
+    dcc.Dropdown(
+        id='dropdown-category2',
+        placeholder="Select group"
+    ),
     html.Br(),
+    html.H6("Group Framing Trajectory (1991-2020)"),
     dcc.Graph(id='line-plot')
 ])
+
 
 # Define callback to update dropdown options based on category1 selection
 @app.callback(
     Output('dropdown-category2', 'options'),
     [Input('dropdown-category1', 'value')]
 )
-def update_dropdown_category2(selected_category1):
+def update_dropdown_category2(selected_category1): 
     filtered_df = df[df['region'] == selected_category1]
     options = [{'label': i, 'value': i} for i in filtered_df['ucdp_name'].unique()]
     return options
@@ -77,4 +117,3 @@ def update_line_plot(selected_category1, selected_category2):
 # Run the app
 if __name__ == '__main__':
     app.run_server(host='0.0.0.0',debug=True)
-
