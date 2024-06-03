@@ -50,9 +50,9 @@ def description_card():
 
 
 # App layout
-app.layout = dbc.Container([
-    dbc.Row([
-        dbc.Col([
+app.layout = Container([
+    Row([
+        Col([
             description_card(),
             html.H6("Select Region"),
             dcc.Dropdown(
@@ -69,7 +69,7 @@ app.layout = dbc.Container([
             ),
             html.Br(),
         ], width=4),  # Width of 4 for the first column
-        dbc.Col([
+        Col([
             html.H6("Group Framing Trajectory (1991-2020)"),
             dcc.Graph(id='line-plot')
         ], width=8)  # Width of 8 for the second column
