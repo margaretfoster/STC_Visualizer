@@ -114,6 +114,9 @@ def update_line_plot(selected_category1, selected_category2):
     fig.update_layout(plot_bgcolor='white')
     return fig
 
-# Run the app
+#Running the app on the server
+server = app.server
+
+## Run:
 if __name__ == '__main__':
-    app.run_server(host='0.0.0.0',debug=True)
+    app.run(debug=True)
