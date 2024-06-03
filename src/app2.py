@@ -74,5 +74,5 @@ def update_line_plot(selected_category1, selected_category2):
 
 # Run the app
 if __name__ == '__main__':
-    app.run_server(debug=True)
+app.run_server(host='0.0.0.0',debug=True)
 
