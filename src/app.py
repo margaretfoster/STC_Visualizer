@@ -1,4 +1,3 @@
-import pandas as pd
 import dash
 from dash import Dash
 from dash import html
@@ -7,6 +6,7 @@ from dash.dependencies import Input, Output
 import plotly.express as px
 import plotly.graph_objects as go
 import sys
+import pandas as pd
 
 ## Import and manipulate data
 group_years = pd.read_csv("../data/group_years_regions.csv")
@@ -50,31 +50,25 @@ def description_card():
 
 
 # App layout
-app.layout = Container([
-    Row([
-        Col([
-            description_card(),
-            html.H6("Select Region"),
-            dcc.Dropdown(
-                id='dropdown-category1',
-                options=[{'label': i, 'value': i} for i in df['region'].unique()],
-                value=df['region'].unique()[0],
-                placeholder="Select region"
-            ),
-            html.Br(),
-            html.H6("Select Group"),
-            dcc.Dropdown(
-                id='dropdown-category2',
-                placeholder="Select group"
-            ),
-            html.Br(),
-        ], width=4),  # Width of 4 for the first column
-        Col([
-            html.H6("Group Framing Trajectory (1991-2020)"),
-            dcc.Graph(id='line-plot')
-        ], width=8)  # Width of 8 for the second column
-    ])
-], fluid=True)
+app.layout = html.Div([
+    description_card(), 
+    html.H6("Select Region"),
+    dcc.Dropdown(
+        id='dropdown-category1',
+        options=[{'label': i, 'value': i} for i in df['region'].unique()],
+        value=df['region'].unique()[0],
+        placeholder="Select region"
+    ),
+    html.Br(),
+    html.H6("Select Group"),
+    dcc.Dropdown(
+        id='dropdown-category2',
+        placeholder="Select group"
+    ),
+    html.Br(),
+    html.H6("Group Framing Trajectory (1991-2020)"),
+    dcc.Graph(id='line-plot')
+])
 
 
 # Define callback to update dropdown options based on category1 selection
