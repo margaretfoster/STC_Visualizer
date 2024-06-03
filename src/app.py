@@ -1,5 +1,6 @@
 import pandas as pd
 import dash
+from dash import Dash
 from dash import html
 from dash import dcc
 from dash.dependencies import Input, Output
@@ -7,15 +8,10 @@ import plotly.express as px
 import plotly.graph_objects as go
 import sys
 
-# Check your Python executable path
-print(sys.executable)
-
 ## Import and manipulate data
 group_years = pd.read_csv("../data/group_years_regions.csv")
 
-
-# Sample data
-df=group_years
+df = group_years
 
 # Initialize the Dash app
 app = dash.Dash(__name__)
