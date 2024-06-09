@@ -40,6 +40,7 @@ region_changes["label"]= [(item[:21]+"..") if
 
 # Initialize the Dash app
 app = dash.Dash(external_stylesheets=[dbc.themes.LUX])
+server = app.server
 
 app.title = "Subject to Change Viewer"
 
