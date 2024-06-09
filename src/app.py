@@ -60,14 +60,24 @@ def description_card():
                 html.Div([
                     html.P(" "),
                     html.P(" "),
-                    html.P("This dashboard allows you to explore how Subject to Change (Foster 2024) militant groups by focusing on the trajectories of specific groups."), 
-                    html.P("Interested users can access the data at: https://github.com/margaretfoster/SubjectToChange/"),
+                    html.P("This dashboard allows you to interactively explore the data produced by Subject to Change (Foster 2024),\
+                            which uses machine learning and natural language processing to estimate the existence and years of change(s) in 250+ militant organizations."), 
+                    html.P("The dashboard enhances the interpretability and transparency of the model \
+                           by offering a visual summary of the estimates at either the regional or individual group level. \
+                           Each tab offers a different way to visualize potential change points found by the project:"),
+                    html.P("1 - Yearly summary by region of operations"), 
+                    html.P("2 - Tally of the change points ascribed to militant groups, presented by region"),
+                    html.P("3 - Change trajectory for individual militant groups"), 
                     html.P(" "),
-                    html.P("To use this dashboard, start by choosing the region, and then a group of interest. The lines on the plot provide years of operation between 1991-2020."),
+                    html.P(" "),
+                    html.P("Interested users can access the data, replication code, and an overview of the project at: https://github.com/margaretfoster/SubjectToChange/"),
+                    html.P("To use this dashboard, start by choosing the region and (where applicable) a group of interest. The lines on the plot provide years of operation between 1991-2020."),
                     html.P("Hovering over the line will provide a box that summarizes the framing for that group-year."),
                     html.P(" "),
                     html.P("Foster (2024) defines changes as group years where the line crosses the 0 (green) line, \
-                            though users may choose a different threshold by creating a custom feature from the 'PropT1' and 'PropT2' columns.")
+                            though users may choose a different threshold by creating a custom feature from the 'PropT1' and 'PropT2' columns. \
+                           The substantive meaning of each end of the scale can be evaluated via the 'frexWords' column of the dataset, which is located at: \
+                           (https://github.com/margaretfoster/SubjectToChange/blob/master/data/group_years_regions.csv)")
                 ])
             ]),
             html.Br(),  # Add a line break for space
