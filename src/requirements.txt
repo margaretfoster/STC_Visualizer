@@ -2,3 +2,5 @@ dash==2.17.0
 plotly
 pandas
 gunicorn
+dash-bootstrap-components >= 1.5.0
+dash-bootstrap-templates == 1.1.2
