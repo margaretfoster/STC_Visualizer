@@ -40,7 +40,6 @@ region_changes["label"]= [(item[:21]+"..") if
 
 # Initialize the Dash app
 app = dash.Dash(external_stylesheets=[dbc.themes.LUX])
-server = app.server
 
 app.title = "Subject to Change Viewer"
 
@@ -85,6 +84,7 @@ def description_card():
         ],
     )
 
+
 def plot_group(df, region1, group1):
 
     filtered_df = df[(df['region'] == region1) & (df['ucdp_name'] == group1)]
@@ -125,21 +125,69 @@ def plot_region(data, region):
 
 def plot_region_sum(data, region):
 
+    ## Summarize # of changes for each region by year:
+
     region_sums = group_years.groupby(["year", "region"])['delta1'].apply(lambda x:
-                                                       (x == 1).sum()).reset_index(name='year_total')
+                                                       (x == 1).sum()).reset_index(name='TotalChanges')
     
-    plotdf = region_sums[region_sums["region"] == region]
+    ## count the number of groups by region and year (using the fact that unit is group-year)
+    regions_count = group_years.groupby(["year", 
+                                     "region"]).size().reset_index(name='NumEntries')
     
-    fig_rs = px.line(plotdf, 
+    region_sums = pd.merge(region_sums, regions_count, 
+                      on= ['year', 'region'], 
+                      how = "left")
+    
+    ## Needed for color indexing; list of region options
+    base_clr = list(group_years['region'].unique())
+    base_clr.sort()
+
+    ## subset by selected region:
+    ## if all selected, no subset
+    if region == "All":
+        plotdf = region_sums
+        color_seq = px.colors.qualitative.Plotly
+
+        fig_rss = px.scatter(plotdf, 
                      x = "year", 
-                     y="year_total", 
-                     color="region", 
+                     y="TotalChanges", 
+                     color="region",
+                     size= "NumEntries", 
+                     color_discrete_sequence = color_seq,
+                     category_orders= list(plotdf['region'].unique()).sort(),
                  title="Yearly Count of Framing Changes of at Least |1|",
                 labels={"year_total": "Number of Changes",
                         "year": "Year", 
                        "region": "Region"})
-    fig_rs.update_layout(plot_bgcolor='white')
-    return fig_rs
+        fig_rss.update_layout(plot_bgcolor='white')
+        fig_rss.update_xaxes(nticks=31, tickangle=45, range=[1988, 2021])
+    #fig_rss.show()
+
+    else: 
+    ## Else subset for selected region:
+    ## TODO: Figure out how to match color for all
+        plotdf = region_sums[region_sums["region"] == region]
+        
+        ## Select matching color
+        reg_location = base_clr.index(region)
+        color_seq = [px.colors.qualitative.Plotly[reg_location]]
+
+        fig_rss = px.scatter(plotdf, 
+                     x = "year", 
+                     y="TotalChanges", 
+                     color="region",
+                     size= "NumEntries", 
+                     color_discrete_sequence = color_seq,
+                     title="Yearly Count of Framing Changes of at Least |1|",
+                     labels={"year_total": "Number of Changes",
+                        "year": "Year", 
+                       "region": "Region"})
+        fig_rss.update_layout(plot_bgcolor='white')
+        fig_rss.update_xaxes(nticks=31, tickangle=45, range=[1988, 2021])
+    #fig_rss.show()
+
+## Plot:    
+    return fig_rss
 
 
 
@@ -155,8 +203,9 @@ app.layout = dbc.Container([
                 html.H4("Select Region"),
                 dcc.Dropdown(
                     id='region-dropdown-time',
-                    options=[{'label': r, 'value': r} for r in region_changes['region'].unique()],
-                    value=region_changes['region'].unique()[0]
+                     ## Options are unique regions in the data + an option for all:
+                    options = [{'label': 'All', 'value': 'All'}]+ [{'label': r, 'value': r} for r in group_years['region'].unique()],
+                    value='All'
                 ),
                 dcc.Graph(id='region-time')
         ])
@@ -168,7 +217,7 @@ app.layout = dbc.Container([
                 html.H4("Select Region"),
                 dcc.Dropdown(
                     id='region-dropdown',
-                    options=[{'label': r, 'value': r} for r in region_changes['region'].unique()],
+                    options=[{'label': r, 'value': r} for r in group_years['region'].unique()],
                     value=region_changes['region'].unique()[0]
                 ),
                 dcc.Graph(id='region-plot')
@@ -240,7 +289,7 @@ def update_region_plot(selected_region):
     [Input('region-dropdown-time', 'value')]
 )
 def update_region_plot(selected_region):
-    return plot_region_sum(region_changes, selected_region)
+    return plot_region_sum(group_years, selected_region)
 
 
 # Running the app on the server

@@ -59,20 +59,31 @@ def description_card():
                 html.Div([
                     html.P(" "),
                     html.P(" "),
-                    html.P("This dashboard allows you to explore how Subject to Change (Foster 2024) militant groups by focusing on the trajectories of specific groups."), 
-                    html.P("Interested users can access the data at: https://github.com/margaretfoster/SubjectToChange/"),
+                    html.P("This dashboard allows you to interactively explore the data produced by Subject to Change (Foster 2024),\
+                            which uses machine learning and natural language processing to estimate the existence and years of change(s) in 250+ militant organizations."), 
+                    html.P("The dashboard enhances the interpretability and transparency of the model \
+                           by offering a visual summary of the estimates at either the regional or individual group level. \
+                           Each tab offers a different way to visualize potential change points found by the project:"),
+                    html.P("1 - Yearly summary by region of operations"), 
+                    html.P("2 - Tally of the change points ascribed to militant groups, presented by region"),
+                    html.P("3 - Change trajectory for individual militant groups"), 
                     html.P(" "),
-                    html.P("To use this dashboard, start by choosing the region, and then a group of interest. The lines on the plot provide years of operation between 1991-2020."),
+                    html.P(" "),
+                    html.P("Interested users can access the data, replication code, and an overview of the project at: https://github.com/margaretfoster/SubjectToChange/"),
+                    html.P("To use this dashboard, start by choosing the region and (where applicable) a group of interest. The lines on the plot provide years of operation between 1991-2020."),
                     html.P("Hovering over the line will provide a box that summarizes the framing for that group-year."),
                     html.P(" "),
                     html.P("Foster (2024) defines changes as group years where the line crosses the 0 (green) line, \
-                            though users may choose a different threshold by creating a custom feature from the 'PropT1' and 'PropT2' columns.")
+                            though users may choose a different threshold by creating a custom feature from the 'PropT1' and 'PropT2' columns. \
+                           The substantive meaning of each end of the scale can be evaluated via the 'frexWords' column of the dataset, which is located at: \
+                           (https://github.com/margaretfoster/SubjectToChange/blob/master/data/group_years_regions.csv)")
                 ])
             ]),
             html.Br(),  # Add a line break for space
             html.Br(),  # Add a line break for space
         ],
     )
+
 
 def plot_group(df, region1, group1):
 
@@ -114,21 +125,69 @@ def plot_region(data, region):
 
 def plot_region_sum(data, region):
 
+    ## Summarize # of changes for each region by year:
+
     region_sums = group_years.groupby(["year", "region"])['delta1'].apply(lambda x:
-                                                       (x == 1).sum()).reset_index(name='year_total')
+                                                       (x == 1).sum()).reset_index(name='TotalChanges')
     
-    plotdf = region_sums[region_sums["region"] == region]
+    ## count the number of groups by region and year (using the fact that unit is group-year)
+    regions_count = group_years.groupby(["year", 
+                                     "region"]).size().reset_index(name='NumEntries')
     
-    fig_rs = px.line(plotdf, 
+    region_sums = pd.merge(region_sums, regions_count, 
+                      on= ['year', 'region'], 
+                      how = "left")
+    
+    ## Needed for color indexing; list of region options
+    base_clr = list(group_years['region'].unique())
+    base_clr.sort()
+
+    ## subset by selected region:
+    ## if all selected, no subset
+    if region == "All":
+        plotdf = region_sums
+        color_seq = px.colors.qualitative.Plotly
+
+        fig_rss = px.scatter(plotdf, 
                      x = "year", 
-                     y="year_total", 
-                     color="region", 
+                     y="TotalChanges", 
+                     color="region",
+                     size= "NumEntries", 
+                     color_discrete_sequence = color_seq,
+                     category_orders= list(plotdf['region'].unique()).sort(),
                  title="Yearly Count of Framing Changes of at Least |1|",
                 labels={"year_total": "Number of Changes",
                         "year": "Year", 
                        "region": "Region"})
-    fig_rs.update_layout(plot_bgcolor='white')
-    return fig_rs
+        fig_rss.update_layout(plot_bgcolor='white')
+        fig_rss.update_xaxes(nticks=31, tickangle=45, range=[1988, 2021])
+    #fig_rss.show()
+
+    else: 
+    ## Else subset for selected region:
+    ## TODO: Figure out how to match color for all
+        plotdf = region_sums[region_sums["region"] == region]
+        
+        ## Select matching color
+        reg_location = base_clr.index(region)
+        color_seq = [px.colors.qualitative.Plotly[reg_location]]
+
+        fig_rss = px.scatter(plotdf, 
+                     x = "year", 
+                     y="TotalChanges", 
+                     color="region",
+                     size= "NumEntries", 
+                     color_discrete_sequence = color_seq,
+                     title="Yearly Count of Framing Changes of at Least |1|",
+                     labels={"year_total": "Number of Changes",
+                        "year": "Year", 
+                       "region": "Region"})
+        fig_rss.update_layout(plot_bgcolor='white')
+        fig_rss.update_xaxes(nticks=31, tickangle=45, range=[1988, 2021])
+    #fig_rss.show()
+
+## Plot:    
+    return fig_rss
 
 
 
@@ -144,8 +203,9 @@ app.layout = dbc.Container([
                 html.H4("Select Region"),
                 dcc.Dropdown(
                     id='region-dropdown-time',
-                    options=[{'label': r, 'value': r} for r in region_changes['region'].unique()],
-                    value=region_changes['region'].unique()[0]
+                     ## Options are unique regions in the data + an option for all:
+                    options = [{'label': 'All', 'value': 'All'}]+ [{'label': r, 'value': r} for r in group_years['region'].unique()],
+                    value='All'
                 ),
                 dcc.Graph(id='region-time')
         ])
@@ -157,7 +217,7 @@ app.layout = dbc.Container([
                 html.H4("Select Region"),
                 dcc.Dropdown(
                     id='region-dropdown',
-                    options=[{'label': r, 'value': r} for r in region_changes['region'].unique()],
+                    options=[{'label': r, 'value': r} for r in group_years['region'].unique()],
                     value=region_changes['region'].unique()[0]
                 ),
                 dcc.Graph(id='region-plot')
@@ -229,7 +289,7 @@ def update_region_plot(selected_region):
     [Input('region-dropdown-time', 'value')]
 )
 def update_region_plot(selected_region):
-    return plot_region_sum(region_changes, selected_region)
+    return plot_region_sum(group_years, selected_region)
 
 
 # Running the app on the server
